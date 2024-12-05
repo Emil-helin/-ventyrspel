@@ -1,0 +1,17 @@
+player_name=input("vad är din gamer tag?")
+print("välkomen "+player_name)
+HP=10
+print("Din hp är: " + str(HP))
+difficulty=input("vilken svårighetgrad vill du välja? A:slak    B: medelhård    C: hård ")
+
+if difficulty== "A":
+    HP+=5
+elif difficulty == "B": 
+ HP==HP
+elif difficulty == "C": 
+  HP-=7
+print(str(HP)+" HP")
+input()
+
+
+ 
