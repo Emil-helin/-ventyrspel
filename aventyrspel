@@ -1,17 +1,141 @@
-player_name=input("vad är din gamer tag?")
-print("välkomen "+player_name)
-HP=10
-print("Din hp är: " + str(HP))
-difficulty=input("vilken svårighetgrad vill du välja? A:slak    B: medelhård    C: hård ")
+import random
 
-if difficulty== "A":
-    HP+=5
-elif difficulty == "B": 
- HP==HP
-elif difficulty == "C": 
-  HP-=7
-print(str(HP)+" HP")
-input()
+class Player:
+    def __init__(self, namn):
+        self.name = namn
+        self.level = 1
+        self.xp = 0
+        self.hp = 100
+        self.inventory = []
+        self.weapon = {"namn": "knogar", "damage": 5}
+        self.armor = {"namn": "textilrustning", "defense": 1}
 
+    def gain_xp(self, mängd):
+        self.xp += mängd
+        if self.xp >= self.level * 100:
+            self.xp -= self.level * 100
+            self.level += 1
+            self.hp += 20
+            print(f"\n{self.name} gick upp till nivå {self.level}! Max HP har ökat till {self.hp}.")
+
+    def equip_weapon(self, weapon):
+        self.weapon = weapon
+        print(f"Du har utrustat {weapon['namn']} med {weapon['damage']} skada.")
+
+    def equip_armor(self, armor):
+        self.armor = armor
+        print(f"Du har utrustat {armor['namn']} med {armor['defense']} försvar.")
+
+    def take_damage(self, damage):
+        reduced_damage = max(0, damage - self.armor["defense"])
+        self.hp -= reduced_damage
+        print(f"Du tog {reduced_damage} skada efter rustningen. Nuvarande HP: {self.hp}")
+
+    def is_alive(self):
+        return self.hp > 0
+
+class Monster:
+    def __init__(self, namn, hp, skada, xp_belöning):
+        self.name = namn
+        self.hp = hp
+        self.damage = skada
+        self.xp_reward = xp_belöning
+
+    def take_damage(self, damage):
+        self.hp -= damage
+
+    def is_alive(self):
+        return self.hp > 0
+
+# Speldata
+svaga_monster = [
+    Monster("Goblin", 30, 5, 50),
+    Monster("Skelett", 25, 4, 40),
+    Monster("Råtta", 20, 3, 30)
+]
+starka_monster = [
+    Monster("Ogre", 60, 12, 100),
+    Monster("Troll", 80, 15, 150),
+    Monster("Demon", 100, 20, 200)
+]
+
+skatter = [
+    {"namn": "Järnsvärd", "damage": 10},
+    {"namn": "Stålsvärd", "damage": 15},
+    {"namn": "Drakdödare", "damage": 25},
+    {"namn": "Läderrustning", "defense": 3},
+    {"namn": "Ringbrynja", "defense": 5},
+    {"namn": "Drakfjällsrustning", "defense": 10}
+]
+
+def välj_dörr():
+    print("\nDu ser tre dörrar framför dig. Välj en att gå in i:")
+    print("1. Dörr 1")
+    print("2. Dörr 2")
+    print("3. Dörr 3")
+    while True:
+        val = input("Ange numret på dörren du vill välja (1-3): ")
+        if val in ["1", "2", "3"]:
+            return int(val)
+        print("Ogiltigt val. Vänligen välj 1, 2 eller 3.")
+
+def hitta_skatt(spelare):
+    skatt = random.choice(skatter)
+    if "damage" in skatt:
+        print(f"Du hittade ett vapen: {skatt['namn']} med {skatt['damage']} skada!")
+        spelare.equip_weapon(skatt)
+    elif "defense" in skatt:
+        print(f"Du hittade en rustning: {skatt['namn']} med {skatt['defense']} försvar!")
+        spelare.equip_armor(skatt)
+    spelare.inventory.append(skatt)
+
+def strid(spelare, monster):
+    print(f"Ett vilt {monster.name} dyker upp! HP: {monster.hp}, Skada: {monster.damage}")
+    while monster.is_alive() and spelare.is_alive():
+        print("\nVad vill du göra?")
+        print("1. Attackera")
+        print("2. Spring iväg")
+        val = input("Ange ditt val: ")
+        if val == "1":
+            monster.take_damage(spelare.weapon["damage"])
+            print(f"Du träffade {monster.name} för {spelare.weapon['damage']} skada. Monster-HP: {monster.hp}")
+            if monster.is_alive():
+                spelare.take_damage(monster.damage)
+        elif val == "2":
+            print("Du sprang iväg säkert!")
+            return True
+        else:
+            print("Ogiltigt val.")
+
+    if spelare.is_alive():
+        print(f"Du besegrade {monster.name}! Du fick {monster.xp_reward} XP.")
+        spelare.gain_xp(monster.xp_reward)
+        return True
+    else:
+        print("Du blev besegrad. Spelet är slut.")
+        return False
+
+def spel_loop():
+    print("Välkommen till Utforskarspelet!")
+    namn = input("Ange ditt namn, modiga utforskare: ")
+    spelare = Player(namn)
+
+    while spelare.is_alive():
+        dörr = välj_dörr()
+        resultat = random.choice(["monster", "skatt"])
+
+        if resultat == "monster":
+            monster = random.choice(svaga_monster if random.random() < 0.7 else starka_monster)
+            if not strid(spelare, monster):
+                break
+        else:
+            hitta_skatt(spelare)
+
+        print(f"\nRundans slut. Nuvarande HP: {spelare.hp}, XP: {spelare.xp}/{spelare.level * 100}, Nivå: {spelare.level}")
+
+    print("\nTack för att du spelade! Hejdå"+ namn)
+
+if __name__ == "__main__":
+    spel_loop()
 
  
