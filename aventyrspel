@@ -47,7 +47,7 @@ class Monster:
     def is_alive(self):
         return self.hp > 0
 
-# Speldata
+
 svaga_monster = [
     Monster("Goblin", 30, 5, 50),
     Monster("Skelett", 25, 4, 40),
